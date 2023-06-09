@@ -37,7 +37,12 @@ interface DeclaredQuery {
 	 * @return a {@literal DeclaredQuery} instance even for a {@literal null} or empty argument.
 	 */
 	static DeclaredQuery of(@Nullable String query, boolean nativeQuery) {
-		return ObjectUtils.isEmpty(query) ? EmptyDeclaredQuery.EMPTY_QUERY : new StringQuery(query, nativeQuery);
+		return of(query, nativeQuery, false);
+	}
+
+	static DeclaredQuery of(@Nullable String query, boolean nativeQuery, boolean useDefaultQueryEnhancer) {
+		return ObjectUtils.isEmpty(query) ? EmptyDeclaredQuery.EMPTY_QUERY
+				: new StringQuery(query, nativeQuery, useDefaultQueryEnhancer);
 	}
 
 	/**
@@ -109,6 +114,10 @@ interface DeclaredQuery {
 	 * @return <code>true</code> if native query otherwise <code>false</code>
 	 */
 	default boolean isNativeQuery() {
+		return false;
+	}
+
+	default boolean useDefaultQueryEnhancer() {
 		return false;
 	}
 }

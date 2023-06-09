@@ -60,6 +60,10 @@ public final class QueryEnhancerFactory {
 
 		if (query.isNativeQuery()) {
 
+			if (query.useDefaultQueryEnhancer()) {
+				return new DefaultQueryEnhancer(query);
+			}
+
 			if (jSqlParserPresent) {
 				/*
 				 * If JSqlParser fails, throw some alert signaling that people should write a custom Impl.

@@ -86,4 +86,6 @@ public @interface Query {
 	 * @since 3.0
 	 */
 	Class<? extends QueryRewriter> queryRewriter() default QueryRewriter.IdentityQueryRewriter.class;
+
+	boolean useDefaultQueryEnhancer() default false;
 }

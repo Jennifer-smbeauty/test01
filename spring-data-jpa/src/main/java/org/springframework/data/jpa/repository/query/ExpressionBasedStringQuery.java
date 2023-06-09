@@ -60,7 +60,12 @@ class ExpressionBasedStringQuery extends StringQuery {
 	 */
 	public ExpressionBasedStringQuery(String query, JpaEntityMetadata<?> metadata, SpelExpressionParser parser,
 			boolean nativeQuery) {
-		super(renderQueryIfExpressionOrReturnQuery(query, metadata, parser), nativeQuery && !containsExpression(query));
+		this(query, metadata, parser, nativeQuery, false);
+	}
+
+	public ExpressionBasedStringQuery(String query, JpaEntityMetadata<?> metadata, SpelExpressionParser parser,
+									  boolean nativeQuery, boolean useDefaultQueryEnhancer) {
+		super(renderQueryIfExpressionOrReturnQuery(query, metadata, parser), nativeQuery && !containsExpression(query), useDefaultQueryEnhancer);
 	}
 
 	/**
