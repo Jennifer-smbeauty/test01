@@ -72,6 +72,8 @@ public abstract class AbstractJpaQuery implements RepositoryQuery {
 
 	final Lazy<ParameterBinder> parameterBinder = Lazy.of(this::createBinder);
 
+	Lazy<ParameterBinder> countParameterBinder;
+
 	/**
 	 * Creates a new {@link AbstractJpaQuery} from the given {@link JpaQueryMethod}.
 	 *

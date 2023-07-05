@@ -97,7 +97,8 @@ class ParameterBinderFactory {
 				evaluationContextProvider, parameters);
 		QueryParameterSetterFactory basicSetterFactory = QueryParameterSetterFactory.basic(parameters);
 
-		return new ParameterBinder(parameters, createSetters(bindings, query, expressionSetterFactory, basicSetterFactory),
+		Iterable<QueryParameterSetter> setters = createSetters(bindings, query, expressionSetterFactory, basicSetterFactory);
+		return new ParameterBinder(parameters, setters,
 				!query.usesPaging());
 	}
 
@@ -126,7 +127,8 @@ class ParameterBinderFactory {
 
 		List<QueryParameterSetter> setters = new ArrayList<>(parameterBindings.size());
 		for (ParameterBinding parameterBinding : parameterBindings) {
-			setters.add(createQueryParameterSetter(parameterBinding, strategies, declaredQuery));
+			QueryParameterSetter queryParameterSetter = createQueryParameterSetter(parameterBinding, strategies, declaredQuery);
+			setters.add(queryParameterSetter);
 		}
 
 		return setters;

@@ -28,6 +28,7 @@ import org.springframework.data.repository.query.QueryCreationException;
 import org.springframework.data.repository.query.RepositoryQuery;
 import org.springframework.data.repository.query.ResultProcessor;
 import org.springframework.data.repository.query.ReturnedType;
+import org.springframework.data.util.Lazy;
 import org.springframework.lang.Nullable;
 
 /**
@@ -197,7 +198,7 @@ final class NamedQuery extends AbstractJpaQuery {
 
 		QueryParameterSetter.QueryMetadata metadata = metadataCache.getMetadata(cacheKey, countQuery);
 
-		return parameterBinder.get().bind(countQuery, metadata, accessor);
+		return ParameterBinder.copy(parameterBinder.get()).bind(countQuery, metadata, accessor);
 	}
 
 	@Override

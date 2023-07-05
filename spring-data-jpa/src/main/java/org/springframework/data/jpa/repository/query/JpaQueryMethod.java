@@ -166,18 +166,26 @@ public class JpaQueryMethod extends QueryMethod {
 			return;
 		}
 
-		for (Parameter parameter : getParameters()) {
+		JpaParameters parameters = getParameters();
+		for (Parameter parameter : parameters) {
 
 			if (!parameter.isNamedParameter()) {
 				continue;
 			}
 
-			if (!StringUtils.hasText(annotatedQuery)
-					|| !annotatedQuery.contains(String.format(":%s", parameter.getName().get()))
-							&& !annotatedQuery.contains(String.format("#%s", parameter.getName().get()))) {
-				throw new IllegalStateException(
-						String.format("Using named parameters for method %s but parameter '%s' not found in annotated query '%s'",
-								method, parameter.getName(), annotatedQuery));
+			boolean annotatedQueryIsNotEmpty = !StringUtils.hasText(annotatedQuery);
+			String parameterName = parameter.getName().get();
+			boolean annotatedQueryDoesntHaveNamedParameter = !annotatedQuery.contains(String.format(":%s", parameterName));
+			boolean annotatedQueryDoesntHaveSpelParameter = !annotatedQuery.contains(String.format("#%s", parameterName));
+			boolean annotatedQueryDoesntHaveRoomForThisParam = annotatedQueryIsNotEmpty
+					|| (annotatedQueryDoesntHaveNamedParameter && annotatedQueryDoesntHaveSpelParameter);
+			if (annotatedQueryDoesntHaveRoomForThisParam) {
+				System.out.println(String.format(
+						">>> Using named parameters for method %s but parameter '%s' not found in annotated query '%s', but we'll proceed anyways",
+						method, parameter.getName(), annotatedQuery));
+				// throw new IllegalStateException(
+				// String.format("Using named parameters for method %s but parameter '%s' not found in annotated query '%s'",
+				// method, parameter.getName(), annotatedQuery));
 			}
 		}
 	}

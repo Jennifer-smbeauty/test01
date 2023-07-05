@@ -79,7 +79,10 @@ abstract class AbstractStringBasedJpaQuery extends AbstractJpaQuery {
 
 		this.countQuery = Lazy.of(() -> {
 			DeclaredQuery countQuery = query.deriveCountQuery(countQueryString, method.getCountQueryProjection());
-			return ExpressionBasedStringQuery.from(countQuery, method.getEntityInformation(), parser, method.isNativeQuery());
+			return new ExpressionBasedStringQuery(countQuery.getQueryString(), method.getEntityInformation(), parser,
+					method.isNativeQuery());
+			// return ExpressionBasedStringQuery.from(countQuery, method.getEntityInformation(), parser,
+			// method.isNativeQuery());
 		});
 
 		this.parser = parser;
@@ -113,6 +116,14 @@ abstract class AbstractStringBasedJpaQuery extends AbstractJpaQuery {
 				evaluationContextProvider);
 	}
 
+	private ParameterBinder createBinderForCountQuery() {
+
+		DeclaredQuery query1 = countQuery.get();
+		ParameterBinder queryAwareBinder = ParameterBinderFactory.createQueryAwareBinder(getQueryMethod().getParameters(),
+				query1, parser, evaluationContextProvider);
+		return queryAwareBinder;
+	}
+
 	@Override
 	protected Query doCreateCountQuery(JpaParametersParameterAccessor accessor) {
 
@@ -125,7 +136,11 @@ abstract class AbstractStringBasedJpaQuery extends AbstractJpaQuery {
 
 		QueryParameterSetter.QueryMetadata metadata = metadataCache.getMetadata(queryString, query);
 
-		parameterBinder.get().bind(metadata.withQuery(query), accessor, QueryParameterSetter.ErrorHandling.LENIENT);
+		if (countParameterBinder == null) {
+			countParameterBinder = Lazy.of(createBinderForCountQuery());
+		}
+
+		countParameterBinder.get().bind(metadata.withQuery(query), accessor, QueryParameterSetter.ErrorHandling.LENIENT);
 
 		return query;
 	}

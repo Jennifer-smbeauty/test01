@@ -15,7 +15,12 @@
  */
 package org.springframework.data.jpa.repository.query;
 
+import jakarta.persistence.Parameter;
 import jakarta.persistence.Query;
+
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.data.jpa.repository.query.QueryParameterSetter.ErrorHandling;
 import org.springframework.data.jpa.support.PageableUtils;
@@ -70,6 +75,10 @@ public class ParameterBinder {
 		this.useJpaForPaging = useJpaForPaging;
 	}
 
+	public static ParameterBinder copy(ParameterBinder parameterBinder) {
+		return new ParameterBinder(parameterBinder.parameters, new ArrayList<>(), parameterBinder.useJpaForPaging);
+	}
+
 	public <T extends Query> T bind(T jpaQuery, QueryParameterSetter.QueryMetadata metadata,
 			JpaParametersParameterAccessor accessor) {
 		bind(metadata.withQuery(jpaQuery), accessor, ErrorHandling.STRICT);
@@ -79,7 +88,26 @@ public class ParameterBinder {
 	public void bind(QueryParameterSetter.BindableQuery query, JpaParametersParameterAccessor accessor,
 			ErrorHandling errorHandling) {
 
+		Set<String> parameterNames = query.getParameters().stream() //
+				.map(Parameter::getName) //
+				.collect(Collectors.toSet());
+
 		for (QueryParameterSetter setter : parameterSetters) {
+
+			// if (setter instanceof QueryParameterSetter.NamedOrIndexedQueryParameterSetter parameterSetter) {
+			// Field parameterField = ReflectionUtils.findField(QueryParameterSetter.NamedOrIndexedQueryParameterSetter.class,
+			// "parameter");
+			// parameterField.setAccessible(true);
+			// try {
+			// Parameter<?> parameter = (Parameter<?>) parameterField.get(parameterSetter);
+			// String parameterName = parameter.getName();
+			// if (!parameterNames.contains(parameterName)) {
+			// continue;
+			// }
+			// } catch (IllegalAccessException e) {
+			// throw new RuntimeException(e);
+			// }
+			// }
 			setter.setParameter(query, accessor, errorHandling);
 		}
 	}
