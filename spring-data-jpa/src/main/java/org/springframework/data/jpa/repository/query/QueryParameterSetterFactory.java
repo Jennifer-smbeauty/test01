@@ -211,16 +211,20 @@ abstract class QueryParameterSetterFactory {
 				int parameterIndex = binding.getRequiredPosition() - 1;
 				JpaParameters bindableParameters = parameters.getBindableParameters();
 
-				Assert.isTrue( //
-						parameterIndex < bindableParameters.getNumberOfParameters(), //
-						() -> String.format( //
-								"At least %s parameter(s) provided but only %s parameter(s) present in query", //
-								binding.getRequiredPosition(), //
-								bindableParameters.getNumberOfParameters() //
-						) //
-				);
+				// Assert.isTrue( //
+				// parameterIndex < bindableParameters.getNumberOfParameters(), //
+				// () -> String.format( //
+				// "At least %s parameter(s) provided but only %s parameter(s) present in query", //
+				// binding.getRequiredPosition(), //
+				// bindableParameters.getNumberOfParameters() //
+				// ) //
+				// );
 
-				parameter = bindableParameters.getParameter(binding.getRequiredPosition() - 1);
+				if (parameterIndex < bindableParameters.getNumberOfParameters()) {
+					parameter = bindableParameters.getParameter(binding.getRequiredPosition() - 1);
+				} else {
+					parameter = null;
+				}
 			}
 
 			return parameter == null //

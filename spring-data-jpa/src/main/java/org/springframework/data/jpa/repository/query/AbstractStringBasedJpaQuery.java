@@ -50,6 +50,8 @@ abstract class AbstractStringBasedJpaQuery extends AbstractJpaQuery {
 	private final QueryParameterSetter.QueryMetadataCache metadataCache = new QueryParameterSetter.QueryMetadataCache();
 	private final QueryRewriter queryRewriter;
 
+	final Lazy<ParameterBinder> countParameterBinder = Lazy.of(this::createBinderForCountQuery);
+
 	/**
 	 * Creates a new {@link AbstractStringBasedJpaQuery} from the given {@link JpaQueryMethod}, {@link EntityManager} and
 	 * query {@link String}.
@@ -76,12 +78,7 @@ abstract class AbstractStringBasedJpaQuery extends AbstractJpaQuery {
 		this.evaluationContextProvider = evaluationContextProvider;
 		this.query = new ExpressionBasedStringQuery(queryString, method.getEntityInformation(), parser,
 				method.isNativeQuery());
-
-		this.countQuery = Lazy.of(() -> {
-			DeclaredQuery countQuery = query.deriveCountQuery(countQueryString, method.getCountQueryProjection());
-			return ExpressionBasedStringQuery.from(countQuery, method.getEntityInformation(), parser, method.isNativeQuery());
-		});
-
+		this.countQuery = Lazy.of(() -> query.deriveCountQuery(countQueryString, method.getCountQueryProjection()));
 		this.parser = parser;
 		this.queryRewriter = queryRewriter;
 
@@ -113,6 +110,12 @@ abstract class AbstractStringBasedJpaQuery extends AbstractJpaQuery {
 				evaluationContextProvider);
 	}
 
+	private ParameterBinder createBinderForCountQuery() {
+
+		return ParameterBinderFactory.createQueryAwareBinder(getQueryMethod().getParameters(), countQuery.get(), parser,
+				evaluationContextProvider);
+	}
+
 	@Override
 	protected Query doCreateCountQuery(JpaParametersParameterAccessor accessor) {
 
@@ -125,7 +128,11 @@ abstract class AbstractStringBasedJpaQuery extends AbstractJpaQuery {
 
 		QueryParameterSetter.QueryMetadata metadata = metadataCache.getMetadata(queryString, query);
 
-		parameterBinder.get().bind(metadata.withQuery(query), accessor, QueryParameterSetter.ErrorHandling.LENIENT);
+		// if (countParameterBinder == null) {
+		// countParameterBinder = Lazy.of(createBinderForCountQuery());
+		// }
+		//
+		countParameterBinder.get().bind(metadata.withQuery(query), accessor, QueryParameterSetter.ErrorHandling.LENIENT);
 
 		return query;
 	}

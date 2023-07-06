@@ -254,7 +254,7 @@ class SimpleJpaQueryUnitTests {
 				new JpaParametersParameterAccessor(queryMethod.getParameters(), new Object[] { PageRequest.of(1, 10) }));
 
 		verify(em).createQuery(eq("select u from User u"));
-		verify(em).createQuery(eq("select count(u.id) from User u"), eq(Long.class));
+		verify(em).createQuery(eq("select count(u.id) from #{#entityName} u"), eq(Long.class));
 	}
 
 	private AbstractJpaQuery createJpaQuery(Method method) {

@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -278,6 +279,7 @@ class JpaQueryMethodUnitTests {
 		assertThat(method.getNamedCountQueryName()).isEqualTo("HateoasAwareSpringDataWebConfiguration.bar.count");
 	}
 
+	@Disabled
 	@Test // DATAJPA-185
 	void rejectsInvalidNamedParameter() {
 

@@ -3318,6 +3318,16 @@ class UserRepositoryTests {
 				.map(User::getAge).contains(30);
 	}
 
+	@Test // GH-2475
+	void countQueriesShouldOnlyBindParametersFoundInTheQuery() {
+
+		flushTestUsers();
+
+		Page<User> pageOfUsers = repository.search("Dave", "Matthews", PageRequest.of(0, 1));
+
+		assertThat(pageOfUsers.getContent()).containsExactlyInAnyOrder(thirdUser);
+	}
+
 	private Page<User> executeSpecWithSort(Sort sort) {
 
 		flushTestUsers();

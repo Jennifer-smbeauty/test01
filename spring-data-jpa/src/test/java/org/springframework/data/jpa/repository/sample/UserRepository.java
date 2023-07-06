@@ -730,6 +730,12 @@ public interface UserRepository extends JpaRepository<User, Integer>, JpaSpecifi
 
 	Window<User> findBy(OffsetScrollPosition position);
 
+	// GH-2475
+	@Query(value = "SELECT * FROM SD_User u WHERE u.firstname = :#{#firstname}",
+			countQuery = "SELECT COUNT(*) FROM SD_User u WHERE u.firstname = :#{#firstname} and u.lastname = :#{#lastname}",
+			nativeQuery = true)
+	Page<User> search(String firstname, String lastname, Pageable pageable);
+
 	interface RolesAndFirstname {
 
 		String getFirstname();
