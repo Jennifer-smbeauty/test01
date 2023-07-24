@@ -17,6 +17,7 @@ package org.springframework.data.jpa.provider;
 
 import org.hibernate.query.Query;
 import org.hibernate.query.spi.SqmQuery;
+import org.hibernate.query.sqm.internal.QuerySqmImpl;
 import org.springframework.lang.Nullable;
 
 /**
@@ -45,8 +46,17 @@ public abstract class HibernateUtils {
 		try {
 
 			// Try the new Hibernate implementation first
-			if (query instanceof SqmQuery) {
-				return ((SqmQuery) query).getSqmStatement().toHqlString();
+			if (query instanceof SqmQuery sqmQuery) {
+
+				String hql = sqmQuery.getQueryString();
+
+				if (!hql.equals("<criteria>")) {
+					return hql;
+				}
+
+				String sqmHql = sqmQuery.getSqmStatement().toHqlString();
+
+				return sqmHql;
 			}
 
 			// Couple of cases in which this still breaks, see HHH-15389
@@ -54,8 +64,8 @@ public abstract class HibernateUtils {
 
 		// Try the old way, as it still works in some cases (haven't investigated in which exactly)
 
-		if (query instanceof Query) {
-			return ((Query<?>) query).getQueryString();
+		if (query instanceof Query<?> hibernateQuery) {
+			return hibernateQuery.getQueryString();
 		} else {
 			throw new IllegalArgumentException("Don't know how to extract the query string from " + query);
 		}
